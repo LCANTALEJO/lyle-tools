@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mixing Ratio Worksheet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Inter', sans-serif;
+      background-color: #121212;
+      color: #fff;
+    }
+    h1 {
+      font-weight: 200;
+      font-size: 1.8rem;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .input-section, .entry-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .input-pair {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    input[type="number"] {
+      font-family: 'Inter', sans-serif;
+      padding: 10px;
+      font-size: 1.1rem;
+      width: 100px;
+      border: none;
+      border-radius: 5px;
+    }
+    .results {
+      font-size: 0.95rem;
+      margin-top: 5px;
+    }
+    .highlight-pass {
+      color: lightgreen;
+    }
+    .highlight-fail {
+      color: red;
+    }
+    .highlight-warning {
+      color: orange;
+    }
+    .entry-row {
+      border-top: 1px solid #333;
+      padding-top: 10px;
+    }
+    .logo {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      width: 80px;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <h1>Mixing Ratio Worksheet</h1>
+<p style="text-align: center; font-size: 0.8em; color: #ccc; margin-top: -10px;">by Lyle Cantalejo</p>
+
+  <div class="input-section">
+    <label>Enter Mixing Ratio (A : B)</label>
+    <div class="input-pair">
+      <input type="number" id="ratioA" placeholder="A" />
+      <strong style="font-size: 2rem;">:</strong>
+      <input type="number" id="ratioB" placeholder="B" />
+    </div>
+  </div>
+
+  <div id="entries"></div>
+
+  
+
+  <script>
+    const entriesDiv = document.getElementById('entries');
+    let ratioA = 100;
+    let ratioB = 34;
+
+    function calculateResult(actualA, actualB) {
+      const idealB = actualA * ratioB / ratioA;
+      const minB = idealB * 0.97;
+      const maxB = idealB * 1.03;
+      const deviation = ((actualB - idealB) / idealB) * 100;
+      let status = 'fail';
+      if (actualB >= minB && actualB <= maxB) {
+        status = 'pass';
+      }
+      return { idealB, minB, maxB, deviation, status };
+    }
+
+    function createEntryRow() {
+      const row = document.createElement('div');
+      row.className = 'entry-row';
+
+      const pairDiv = document.createElement('div');
+      pairDiv.className = 'input-pair';
+
+      const inputA = document.createElement('input');
+      inputA.type = 'number';
+      inputA.placeholder = 'A weight';
+
+      const inputB = document.createElement('input');
+      inputB.type = 'number';
+      inputB.placeholder = 'B weight';
+
+      pairDiv.appendChild(inputA);
+      pairDiv.appendChild(inputB);
+
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'results';
+
+      row.appendChild(pairDiv);
+      row.appendChild(resultDiv);
+      entriesDiv.appendChild(row);
+
+      function handleInput() {
+        const aVal = parseFloat(inputA.value);
+        const bVal = parseFloat(inputB.value);
+        if (!isNaN(aVal) && !isNaN(bVal)) {
+          const { idealB, minB, maxB, deviation, status } = calculateResult(aVal, bVal);
+          resultDiv.innerHTML = `
+            Ideal B: ${idealB.toFixed(2)}<br>
+            Range: ${minB.toFixed(2)} – ${maxB.toFixed(2)}<br>
+            Deviation: ${deviation.toFixed(1)}%<br>
+            Result: <span class="${status === 'pass' ? 'highlight-pass' : status === 'warning' ? 'highlight-warning' : 'highlight-fail'}">
+              ${status.toUpperCase()} ${status === 'pass' ? '✅' : status === 'warning' ? '⚠️' : '❌'}
+            </span>
+          `;
+          if (!row.nextRowAdded) {
+            createEntryRow();
+            row.nextRowAdded = true;
+          }
+        } else {
+          resultDiv.innerHTML = '';
+        }
+      }
+
+      inputA.addEventListener('input', handleInput);
+      inputB.addEventListener('input', handleInput);
+    }
+
+    document.getElementById('ratioA').addEventListener('input', e => {
+      ratioA = parseFloat(e.target.value) || 100;
+    });
+    document.getElementById('ratioB').addEventListener('input', e => {
+      ratioB = parseFloat(e.target.value) || 34;
+    });
+
+    createEntryRow();
+  </script>
+</body>
+</html>
